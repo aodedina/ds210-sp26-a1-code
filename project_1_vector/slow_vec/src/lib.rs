@@ -59,8 +59,15 @@ impl<T> SlowVec<T> {
     }
 
     // Student 1: Provide your solution here.
-    pub fn push(&mut self, t: T) {
-        todo!("Student 1 should implement this");
+    pub fn push(&mut self, t: T) { //grows the vector at the end, t element we wanna grow
+        let mut tmp = FixedSizeArray::allocate(self.len() + 1); //adds one more space for new element to kinda 'grow' the vector bc fixedsizearray cant be changed
+       
+        for i in 0..self.len() { //0 to current len
+            tmp.put(self.fixed.move_out(i),i); //takes element and removes, then puts new element at same position i (transfer from old to new)
+        }
+        tmp.put(t, self.len()); //puts t at the last index, so like our "push"
+
+        self.fixed = tmp; //get rid of the old fixed field and replace with tmp
     }
 
     // Student 2: Provide your solution here
