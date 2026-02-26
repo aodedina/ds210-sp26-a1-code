@@ -75,6 +75,7 @@ impl<T> SlowVec<T> {
         let old_len = self.len();   //measure length of old vector
         let mut new_fixed = FixedSizeArray::allocate(old_len - 1);  //make new vector with length 1 less than length of old vector
 
+        
         for n in 0..i{  //loop iterates through values until value in position i
             let element = self.fixed.move_out(n);  //removes the values from old vector
             new_fixed.put(element, n);  //puts the values at their same position in the new vector
