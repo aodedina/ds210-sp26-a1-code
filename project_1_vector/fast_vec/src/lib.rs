@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Formatter}, ptr::{self, null_mut}};
+use std::{fmt::{Display, Formatter}, io::Bytes, ptr::{self, null_mut}};
 
 use malloc::MALLOC;
 
@@ -61,15 +61,33 @@ impl<T> FastVec<T> {
     // Student 1 and Student 2 should implement this together
     // Use the project handout as a guide for this part!
     pub fn get(&self, i: usize) -> &T {
-        todo!("implement get!");
+        if i >= self.len {   //acknowledges elements called which are out of bounds
+            panic!("FastVec: get out of bounds");
+        }
+        unsafe {
+            &*self.ptr_to_data.add(i)  //return reference to the ith element
+        }
     }
 
     // Student 2 should implement this.
     pub fn push(&mut self, t: T) {
         if self.len == self.capacity {
-            todo!("implement growing the vector by doubling the size!");
+            unsafe {
+                let new_capacity = self.capacity * 2;
+            let new_ptr = MALLOC.malloc(size_of::<T>() * new_capacity) as *mut T;
+
+            for i in 0..new_capacity.len() {
+                let old_element = ptr::read(self.ptr.add(i));
+                ptr::write(new.ptr.add(i),  old_element);
+            }
+            
+            }
+
+
         } else {
-            todo!("implement pushing t directly since the vector still has capacity!");
+            unsafe{
+
+            }
         }
     }
 
