@@ -69,31 +69,51 @@ impl<T> FastVec<T> {
         }
     }
 
+
+
     // Student 2 should implement this.
     pub fn push(&mut self, t: T) {
-        if self.len == self.capacity {
-            let new_capacity = self.capacity * 2;
-            unsafe {
-                let new_ptr = MALLOC.malloc(std::mem::size_of::<T>() * new_capacity) as *mut T;
-                for i in 0..self.len() {
-                    let element = std::ptr::read(self.ptr.add(i));
-                    std::ptr::write(new_ptr.add(i), element);
+        if self.len == self.capacity {  //check if vector has reached capacity
+            let new_capacity = if self.capacity == 0 {1} else {self.capacity * 2}; //if empty, start vector as length of 1 or double to current capacity
+            unsafe {  //unsafe block implemented since we are dealing with raw pointers
+                let new_ptr = MALLOC.malloc(std::mem::size_of::<T>() * new_capacity) as *mut T;  //allocate new memory in the heap cast to *mut T
+                
+                for i in 0..self.len {  //copy existing elements from old memory to new memory
+                    let element = std::ptr::read(self.ptr_to_data.add(i));  //read the element from old pointer starting at index i
+                    std::ptr::write(new_ptr.add(i), element);  //write the element into new pointer at same index
                 }
-                MALLOC.free(self.ptr as *mut u8);
-            }
-            
-            }
+                if !self.ptr_to_data.is_null() {  //if pointer is not empty, free the old memory
+                    MALLOC.free(self.ptr_to_data as *mut u8); 
+                }
+                
+                std::ptr::write(new_ptr.add(self.len), t);  //write the new element into new memory at index 'len'
 
+                self.ptr_to_data = new_ptr;  //update struct to point to new memory
+                self.capacity = new_capacity;  //update capacity to reflect the updated size
+            }
         } else {
-            unsafe{
-
+            unsafe {  //if there is still capacity, write new element at index 'len', in the same collection of memory 
+                std::ptr::write(self.ptr_to_data.add(self.len), t);
             }
         }
+        self.len += 1;  //increase length since a new element was just added
     }
 
+
+    
     // Student 1 should implement this.
     pub fn remove(&mut self, i: usize) {
-        todo!("implement remove");
+        if i >= self.len{
+            panic!("FastVec: remove out of bounds");
+        }
+        unsafe {
+            let to_be_removed = ptr::read(self.ptr_to_data.add(i));
+            for j in i + 1..self.len {
+                let value = ptr::read(self.ptr_to_data.add(j));
+                ptr::write(self.ptr_to_data.add(j-1), value);
+            }
+            self.len = self.len - 1;
+        }
     }
 
     // This appears correct but with further testing, you will notice it has a bug!
