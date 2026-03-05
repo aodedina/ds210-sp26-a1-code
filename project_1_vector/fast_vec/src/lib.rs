@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Formatter}, ptr::{self, null_mut}};
+use std::{fmt::{Display, Formatter}, io::Bytes, ptr::{self, null_mut}};
 
 use malloc::MALLOC;
 
@@ -69,6 +69,7 @@ impl<T> FastVec<T> {
         }
     }
 
+
     // Student 2 should implement this.
     pub fn push(&mut self, t: T) {
         if self.len == self.capacity {  //check if vector has reached capacity
@@ -97,18 +98,22 @@ impl<T> FastVec<T> {
         self.len += 1;  //increase length since a new element was just added
     }
 
+
+    
     // Student 1 should implement this.
     pub fn remove(&mut self, i: usize) {
-        if i >= self.len{
+        if i >= self.len{ //checks if the index is valid
             panic!("FastVec: remove out of bounds");
         }
         unsafe {
-            let to_be_removed = ptr::read(self.ptr_to_data.add(i));
-            for j in i + 1..self.len {
-                let value = ptr::read(self.ptr_to_data.add(j));
-                ptr::write(self.ptr_to_data.add(j-1), value);
+            let to_be_removed = ptr::read(self.ptr_to_data.add(i)); //moves the index at i out of memory and stores in to_be_removed
+            
+            for j in i + 1..self.len { //shifts every element after i one position to the left 
+                let value = ptr::read(self.ptr_to_data.add(j)); //moves index at j out of memory and stores in value 
+                ptr::write(self.ptr_to_data.add(j-1), value); //writes it into the previous spot hence the j-1
             }
-            self.len = self.len - 1;
+            
+            self.len = self.len - 1; //bc we're down an element, the last slot is like unused so subtract 1 
         }
     }
 
@@ -117,7 +122,15 @@ impl<T> FastVec<T> {
     // Hint: check out case 2 in memory.rs, which you can run using
     //       cargo run --bin memory
     pub fn clear(&mut self) {
-        MALLOC.free(self.ptr_to_data as *mut u8);
+        unsafe {
+            for i in 0..self.len{ //loops through every element
+                ptr::read(self.ptr_to_data.add(i)); //moves element out of memory at i
+            }
+            if !self.ptr_to_data.is_null() { //frees the entire memory block
+                MALLOC.free(self.ptr_to_data as *mut u8);
+            }
+        }
+        
         self.ptr_to_data = null_mut();
         self.len = 0;
         self.capacity = 0;
