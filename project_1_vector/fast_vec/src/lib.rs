@@ -71,11 +71,30 @@ impl<T> FastVec<T> {
 
     // Student 2 should implement this.
     pub fn push(&mut self, t: T) {
-        if self.len == self.capacity {
-            todo!("implement growing the vector by doubling the size!");
+        if self.len == self.capacity {  //check if vector has reached capacity
+            let new_capacity = if self.capacity == 0 {1} else {self.capacity * 2}; //if empty, start vector as length of 1 or double to current capacity
+            unsafe {  //unsafe block implemented since we are dealing with raw pointers
+                let new_ptr = MALLOC.malloc(std::mem::size_of::<T>() * new_capacity) as *mut T;  //allocate new memory in the heap cast to *mut T
+                
+                for i in 0..self.len {  //copy existing elements from old memory to new memory
+                    let element = std::ptr::read(self.ptr_to_data.add(i));  //read the element from old pointer starting at index i
+                    std::ptr::write(new_ptr.add(i), element);  //write the element into new pointer at same index
+                }
+                if !self.ptr_to_data.is_null() {  //if pointer is not empty, free the old memory
+                    MALLOC.free(self.ptr_to_data as *mut u8); 
+                }
+                
+                std::ptr::write(new_ptr.add(self.len), t);  //write the new element into new memory at index 'len'
+
+                self.ptr_to_data = new_ptr;  //update struct to point to new memory
+                self.capacity = new_capacity;  //update capacity to reflect the updated size
+            }
         } else {
-            todo!("implement pushing t directly since the vector still has capacity!");
+            unsafe {  //if there is still capacity, write new element at index 'len', in the same collection of memory 
+                std::ptr::write(self.ptr_to_data.add(self.len), t);
+            }
         }
+        self.len += 1;  //increase length since a new element was just added
     }
 
     // Student 1 should implement this.
