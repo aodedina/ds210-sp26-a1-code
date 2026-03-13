@@ -13,50 +13,47 @@ impl ChatbotV3 {
         return ChatbotV3 {
             model,
             chat_sessions: HashMap::new(),
-            // Make sure you initialize your struct members here
         };
     }
 
     #[allow(dead_code)]
     pub async fn chat_with_user(&mut self, username: String, message: String) -> String {
-        let chat_session = if self.chat_sessions.contains_key(&username) {
-            self.chat_sessions.get_mut(&username).unwrap()
-        } else {
-            let new_session = self.model
-                .chat()
-                .with_system_prompt("The assistant will act like a pirate");
-            
-            self.chat_sessions.insert(username.clone(), new_session);
-            self.chat_sessions.get_mut(&username).unwrap()
-        };
-        let response = chat_session.add_message(message).await;
+        let chat_session; //checks for already active session w username
+        if self.chat_sessions.contains_key(&username) { //if user exists gets session that alr exists
+            chat_session = self.chat_sessions.get_mut(&username).unwrap();
+        } else { //if else, creates new chat session
+            self.chat_sessions.insert(
+             username.clone(), //clone because we need username later 
+             self.model
+                   .chat()
+                   .with_system_prompt("The assistant will act like a pirate."), 
+                   //this will create new chat with above prompt
+            );
+            chat_session = self.chat_sessions.get_mut(&username).unwrap(); //retrieves new session
+        }
+        let response = chat_session.add_message(message).await; //add users new message to correct chat session
         
-        //handle success and error cases coming from the LLM's response
+        //handle success and failure responses
         match response {
             Ok(output) => output.to_string(),
-            Err(_) => String::from("Something went wrong."), //fallback response
+            Err(_) => String::from("Something went wrong."), //error response
         }
     }
 
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
-        let mut history_strings = Vec::new();
-        if let Some(chat) = self.chat_sessions.get(&username) {
-            if let Ok(session) = chat.session() {
-                let history = session.history();
-                println!("{:?}", history);
-
-                
-                for i in 0..history.len() {
-                    let message = &history[i];
-                    let content = message.content().to_string();
-                    history_strings.push(content);
+        if let Some(chat) = self.chat_sessions.get(&username) { //attempts to find user's session
+            if let Some(session) = chat.session() { //retrieves session object
+                let history = session.history(); //gets message history from chat sessions
+                let mut history_for_strings = Vec::new(); //creates an empty vector to store strings
+                for message in history {
+                    let pre_message = message.content().to_string(); //converts text to string
+                    history_for_strings.push(pre_message); //adds this onto our previously made vector 
                 }
+                return history_for_strings; //returns list
             }
-            return history_strings;
-
-        } else {
-            return Vec::new();
         }
+        Vec::new(); //if all else return empty list
+      }
     }
-}
+
