@@ -24,14 +24,13 @@ impl ChatbotV2 {
                 .with_system_prompt("The assistant will act like a pirate")
             );
         }
-
         let chat_session = self.chat_session.as_mut().unwrap();
 
         let response = chat_session.add_message(message).await;
 
         //handle success and error cases coming from the LLM's response
         match response {
-            Ok(output) => output.to_string(),
+            Ok(output) => output.to_string(), //success and creates a string response to be returned
             Err(_) => String::from("Something went wrong."), //fallback response
         }
     }
