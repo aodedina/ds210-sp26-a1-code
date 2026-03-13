@@ -16,20 +16,10 @@ impl ChatbotV1 {
         let mut chat_session: Chat<Llama> = self.model
             .chat()
             .with_system_prompt("The assistant will act like a pirate");
-
-        let asynchronous_output = chat_session.add_message(message); //send users message to chat session
-        let output = asynchronous_output.await; //wait for LLM to finish generating response; await pauses any input that may come in
-
-        //handle success and error cases coming from the LLM's response
-        let output_text = match output {
-            Ok(text) => text,
-            Err(_) => String::from("Sorry, couldn't generate a response."), //fallback response
-        };
-        return output_text;
-
-        // You need to add your code here
-        // You must find a way to add the given message to the chat_session!
-        // consider https://docs.rs/kalosm/0.4.0/kalosm/language/struct.Chat.html#method.add_message
-        // Hint: make sure you transform/extract the response message as a **String**.
+            let response = chat_session.add_message(message).await; //sends msg to chatbot and then await tells rust to wait until it's done generating a response
+            match response { //checks if response successful
+                Ok(output) => output.to_string(), //if function succeeds, converts chatbots response into a string so it can be returned 
+                Err(_) => String::from("Something went wrong."), //if function fails, returns the statement in parentheses using String::from (like pure string)
+            }
+        }
     }
-}
