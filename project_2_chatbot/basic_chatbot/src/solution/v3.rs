@@ -43,21 +43,19 @@ impl ChatbotV3 {
 
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
-        let mut history_strings = Vec::new(); //creates an empty vector to store strings
-
         if let Some(chat) = self.chat_sessions.get(&username) { //attempts to find user's session
             if let Ok(session) = chat.session() { //retrieves session object
                 let history = session.history(); //gets message history from chat sessions
+                let mut history_strings = Vec::new(); //creates an empty vector to store strings
+
                 for message in history {
-                    let pre_message = message.content().to_string(); //converts text to string
-                    history_strings.push(pre_message); //adds this onto our previously made vector 
+                    history_strings.push(message.content().to_string()); //adds this onto our previously made vector 
                 }
-                //return history_strings; //returns list
+                return history_strings; //returns list
             }
-        }
-        history_strings
-      }
-      //Vec::new(); //if all else return empty list
+        } 
+        Vec::new() //if all else return empty list
     }
 
+}
 
