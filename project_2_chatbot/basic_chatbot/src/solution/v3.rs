@@ -43,25 +43,21 @@ impl ChatbotV3 {
 
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
-        let mut history_strings = Vec::new();  //create empty vector that will store conversation history as strings
-        if let Some(chat) = self.chat_sessions.get(&username) {  //check if chat session exists; if so, retrieves it
-            if let Ok(session) = chat.session() {
-                let history = session.history();  //get message history stored in this session
-                println!("{:?}", history);
+        let mut history_strings = Vec::new(); //creates an empty vector to store strings
 
-                
-                //loop through each message in history
-                for i in 0..history.len() {
-                    let message = &history[i];  //access current message in history 
-                    let content = message.content().to_string();  //extract text content of message and convert to string 
-                    history_strings.push(content);  //add message content to vector of history strings
+        if let Some(chat) = self.chat_sessions.get(&username) { //attempts to find user's session
+            if let Ok(session) = chat.session() { //retrieves session object
+                let history = session.history(); //gets message history from chat sessions
+                for message in history {
+                    let pre_message = message.content().to_string(); //converts text to string
+                    history_strings.push(pre_message); //adds this onto our previously made vector 
                 }
+                //return history_strings; //returns list
             }
-            return history_strings;  
-
-        } else {  //if no chat session exists for username, return empty vector 
-            return Vec::new();
         }
+        history_strings
       }
+      //Vec::new(); //if all else return empty list
     }
+
 
