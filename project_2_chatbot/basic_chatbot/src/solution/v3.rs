@@ -43,7 +43,6 @@ impl ChatbotV3 {
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
         if let Some(chat) = self.chat_sessions.get(&username) { //attempts to find user's session
-            //let session =  LlamaChatSession::from_bytes(std::fs::read(format!("sessions/{}.bin", username)).unwrap().as_slice()).unwrap();
             let history = chat.session().unwrap().history(); //gets message history from chat sessions
             let mut history_strings = Vec::new(); //creates an empty vector to store strings
             history_strings.push(String::from("How will this assistant act?"));
