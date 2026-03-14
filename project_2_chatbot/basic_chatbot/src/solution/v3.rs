@@ -46,7 +46,7 @@ impl ChatbotV3 {
             let history = chat.session().unwrap().history(); //gets message history from chat sessions
             let mut history_strings = Vec::new(); //creates an empty vector to store strings
 
-            for message in history.iter().skip(1) {
+            for message in history.iter().skip(1) {  //skips over the "The assistant will act like a pirate." message
                 history_strings.push(message.content().to_string()); //adds this onto our previously made vector 
             }
             return history_strings; //returns list
