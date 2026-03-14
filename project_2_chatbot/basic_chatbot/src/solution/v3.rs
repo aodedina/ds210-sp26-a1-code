@@ -29,14 +29,8 @@ impl ChatbotV3 {
                 self.chat_sessions.get_mut(&username).unwrap()   
             }
         };
-    
-
-        let response = chat_session.add_message(message).await; //add users new message to the correct chat session
         
-        // let session_as_bytes = chat_session.to_bytes().unwrap();
-        // std::fs::create_dir_all("sessions").unwrap();
-        // std::fs::write(format!("sessions/{}.bin", username), session_as_bytes).unwrap();
-
+        let response = chat_session.add_message(message).await; //add users new message to the correct chat session
         
         //handles success and failure output responses
         match response {
