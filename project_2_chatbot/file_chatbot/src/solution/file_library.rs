@@ -12,8 +12,13 @@ use std::fs;
 
 // Implement this
 pub fn save_chat_session_to_file(filename: &str, session: &LlamaChatSession) {
-    // look at fs::write(...)
-    unimplemented!("Saving chat session to file {filename}");
+    let bytes = session.to_bytes(); //converts session to bytes so it can be stored kalosm
+    //fs writes into a file to save
+    match fs::write(filename, bytes) {
+        Ok(_) => {} //empty do nothing
+        Err(_) => panic!("Couldn't write to session file"), //panics if theres an error
+    }
+    
 }
 
 // Implement this
