@@ -34,8 +34,7 @@ impl ChatbotV4 {
             None => {
                 return Vec::new();
             },
-            Some(session) => {
-                // TODO: what should happen here?
+            Some(_session) => {
                 return Vec::new();
             }
         }
