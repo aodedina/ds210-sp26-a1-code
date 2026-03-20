@@ -32,11 +32,12 @@ impl ChatbotV3 {
             chat_session = self.chat_sessions.get_mut(&username).unwrap(); //retrieves new session
         }
         let response = chat_session.add_message(message).await; //add users new message to correct chat session
-        
+        println!("Current users stored: {:?}", self.chat_sessions.keys());
         //handle success and failure responses
         match response {
             Ok(output) => output.to_string(),
             Err(_) => String::from("Something went wrong."), //error response
+        
         }
     }
 
@@ -44,18 +45,18 @@ impl ChatbotV3 {
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
         if let Some(chat) = self.chat_sessions.get(&username) { //attempts to find user's session
-            if let Ok(session) = chat.session() { //retrieves session object
-                let history = session.history(); //gets message history from chat sessions
+                let history = chat.session().unwrap().history(); //gets message history from chat sessions
                 let mut history_strings = Vec::new(); //creates an empty vector to store strings
-
                 for message in history {
-                    history_strings.push(message.content().to_string()); //adds this onto our previously made vector 
-                }
-                return history_strings; //returns list
+                history_strings.push(message.content().to_string()); //adds this onto our previously made vector 
             }
-        } 
-        Vec::new() //if all else return empty list
+            return history_strings; //returns list
+        } else {
+            return Vec::new();
+        }
     }
+ 
+} 
 
-}
+
 
