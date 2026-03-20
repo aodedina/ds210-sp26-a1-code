@@ -12,7 +12,7 @@ use std::fs;
 
 // Implement this
 pub fn save_chat_session_to_file(filename: &str, session: &LlamaChatSession) {
-    let bytes = session.to_bytes(); //converts session to bytes so it can be stored kalosm
+    let bytes = session.to_bytes().unwrap(); //converts session to bytes so it can be stored kalosm
     //fs writes into a file to save
     match fs::write(filename, bytes) {
         Ok(_) => {} //empty do nothing

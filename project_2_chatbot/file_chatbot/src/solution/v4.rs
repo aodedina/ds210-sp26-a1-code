@@ -29,7 +29,7 @@ impl ChatbotV4 {
         //sends message from the user to chatbot
         let response = chat_session.add_message(message).await; 
         
-        if let Ok(session) = chat.session.session() { //gets session object then saves updated session to the file
+        if let Ok(session) = chat_session.session() { //gets session object then saves updated session to the file
             file_library::save_chat_session_to_file(filename, &session);
         }
         match response{ //takes care of cases for response
@@ -47,8 +47,14 @@ impl ChatbotV4 {
             None => {
                 return Vec::new();
             },
-            Some(_session) => {
-                return Vec::new();
+            Some(session) => {
+                let mut history_strings = Vec::new();
+
+                let history = session.history();
+                for message in history.iter().skip(1) {
+                    history_strings.push(message.content().to_string());
+                }
+                history_strings
             }
         }
     }
