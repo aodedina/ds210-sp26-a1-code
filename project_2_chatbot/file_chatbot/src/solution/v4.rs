@@ -45,16 +45,16 @@ impl ChatbotV4 {
 
         match file_library::load_chat_session_from_file(&filename) {
             None => {
-                return Vec::new();
-            },
-            Some(session) => {
-                let mut history_strings = Vec::new();
+                return Vec::new(); //return empty history if no file exists
+            }, 
+            Some(session) => {  //session exists
+                let mut history_strings = Vec::new();  //makes new vector to store message history as strings
 
-                let history = session.history();
-                for message in history.iter().skip(1) {
-                    history_strings.push(message.content().to_string());
+                let history = session.history();  //get full message history from session
+                for message in history.iter().skip(1) {  //skips over the assistant will act like a pirate line 
+                    history_strings.push(message.content().to_string());  //convert messages to strings and pushes them to vector
                 }
-                history_strings
+                history_strings  //returns full list of past messages
             }
         }
     }
