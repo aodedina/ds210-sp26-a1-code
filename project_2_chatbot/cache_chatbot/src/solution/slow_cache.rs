@@ -35,11 +35,28 @@ impl<V> Cache<V> {
         // TODO: your code goes here.
         // println!("Removing least recently used");
     }
+    
+    
     fn mark_as_most_recently_used(&mut self, username: String) {
-        
         println!("Marking {username} as most recently used");
+
+        let mut index = None;  //if username exists, this stores index where username currently exists
+
+        //loop through the usage history vector to find the username
+        for i in 0..self.usage_history.len() {
+            if self.usage_history[i] == username {
+                index = Some(i);  //stores the index if found
+                break;  //exits loop if we find the user
+            }
+        }
+        //if username is found, remove the username from its current position
+        if let Some(i) = index {
+            self.usage_history.remove(i);
+        }
+        self.usage_history.push(username);  //add username to end of vector, making it the most recently used 
     }
 
+    
     // Reading from the cache:
     // if the username is in the cache, it must be marked as the most recently
     // used.
