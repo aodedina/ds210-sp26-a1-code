@@ -3,8 +3,8 @@ extern crate experiments;
 use std::collections::HashMap;
 use std::time::Instant;
 
-use cache_chatbot::solution::slow_cache::Cache as SlowCache;
 use cache_chatbot::solution::fast_cache::Cache as FastCache;
+use cache_chatbot::solution::slow_cache::Cache as SlowCache;
 
 const CAPACITY: usize = 10000000;
 
@@ -17,7 +17,7 @@ fn main() {
         let username = format!("u{}", i);
         let msg = format!("{}", i);
         map.insert(username.clone(), msg);
-        history.push(username);        
+        history.push(username);
     }
     let mut cache = SlowCache::prime(CAPACITY, map, history);
 
@@ -28,7 +28,7 @@ fn main() {
     if msg.unwrap() != "0" {
         panic!("slow cache does not access elements correctly");
     }
-    
+
     // Insert an element.
     let now = Instant::now();
     cache.insert_chat(String::from("x0"), String::from("xx"));
@@ -36,7 +36,6 @@ fn main() {
     if cache.get_chat("x0").unwrap() != "xx" {
         panic!("slow cache does not insert elements correctly");
     }
-    
 
     // FastCache
     let mut cache = FastCache::new(CAPACITY);
@@ -54,7 +53,7 @@ fn main() {
     if msg.unwrap() != "0" {
         panic!("fast cache does not access elements correctly");
     }
-    
+
     // Insert an element.
     let now = Instant::now();
     cache.insert_chat(String::from("x0"), String::from("xx"));

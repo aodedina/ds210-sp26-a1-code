@@ -16,7 +16,8 @@ async fn main() {
     let client = experiments::client_v3().await;
 
     // Send a message to v3.
-    let (message, _) = experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
+    let (message, _) =
+        experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
 
     // Retrieve history from v3.
     let (v3_messages, v3_time) = experiments::get_history(&client, "Sophie").await;
@@ -29,7 +30,8 @@ async fn main() {
     let client = experiments::client_v4().await;
 
     // Send a message to v4.
-    let (message, _) = experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
+    let (message, _) =
+        experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
 
     // Retrieve history from v4.
     let (v4_messages, v4_time) = experiments::get_history(&client, "Sophie").await;
@@ -42,7 +44,8 @@ async fn main() {
     let client = experiments::client_v5().await;
 
     // Send a message to v5.
-    let (message, _) = experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
+    let (message, _) =
+        experiments::send_chat_message(&client, "Sophie", "hello, I am Sophie!").await;
 
     // Retrieve history from v5 (hot).
     let (v5_messages, v5_time_hot) = experiments::get_history(&client, "Sophie").await;

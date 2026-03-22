@@ -1,6 +1,6 @@
-use std::time::{Duration, Instant};
 use rocket::local::asynchronous::Client;
 use rocket::serde::{Deserialize, Serialize};
+use std::time::{Duration, Instant};
 
 // Create clients for different chatbot versions.
 pub async fn client_v3() -> Client {
@@ -18,7 +18,6 @@ pub async fn client_v5() -> Client {
     return Client::untracked(webserver).await.unwrap();
 }
 
-
 // Types passed to or returned by ChatBots HTTP APIs.
 #[derive(Debug, Serialize, Deserialize)]
 struct ChatRequest<'a> {
@@ -34,19 +33,19 @@ struct ChatResponse {
 type HistoryResponse = Vec<String>;
 
 // Send chat message.
-pub async fn send_chat_message(client: &Client, username: &str, message: &str) -> (String, Duration) {
+pub async fn send_chat_message(
+    client: &Client,
+    username: &str,
+    message: &str,
+) -> (String, Duration) {
     let request = client
         .post("/chat")
-        .json(&ChatRequest {
-            username,
-            message
-        });
+        .json(&ChatRequest { username, message });
 
     let time = Instant::now();
     let response = request.dispatch().await;
     let body = response.into_bytes().await;
     let time_taken = time.elapsed();
-
 
     let response: ChatResponse = serde_json::from_slice(&body.unwrap()).unwrap();
     return (response.message, time_taken);
@@ -54,12 +53,10 @@ pub async fn send_chat_message(client: &Client, username: &str, message: &str) -
 
 // get history.
 pub async fn get_history(client: &Client, username: &str) -> (Vec<String>, Duration) {
-    let request = client
-        .post("/history")
-        .json(&ChatRequest {
-            username,
-            message: "",
-        });
+    let request = client.post("/history").json(&ChatRequest {
+        username,
+        message: "",
+    });
 
     let time = Instant::now();
     let response = request.dispatch().await;
