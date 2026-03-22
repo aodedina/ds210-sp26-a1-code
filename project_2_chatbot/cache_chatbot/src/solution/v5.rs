@@ -65,18 +65,46 @@ impl ChatbotV5 {
         let cached_chat = self.cache.get_chat(&username);
 
         match cached_chat {
-            None => {
+            None => { //if not in cache will load from file
                 println!("get_history: {username} is not in the cache!");
-                // TODO: The cache does not have the chat. What should you do?
-                // Your code goes here.
-                return Vec::new();
+                //load chat from session file
+                match file_library::load_chat_session_from_file(filename) {
+                    Some(session) => { //if file exists loads session
+                        let chat = self.model //creates new chat and attaches previous session
+                            .chat()
+                            .with_system_prompt("The assistant will act like a pirate")
+                            .with_session(session);
+                        self.cache.insert_chat(username.clone(), chat); //adds onto cache
+                        //gets reference to the chat we just inserted
+                        let chat_reference = self.cache.get_chat(&username).unwrap();
+                        //takes out the session from the chat
+                        if let Ok(session) = chat_reference.session() { 
+                            let history = session.history(); //gets past messages
+                            let mut history_strings = Vec::new(); //new vector to store strings
+                            for message in history.iter() { //loops through each message
+                                history_strings.push(message.content().to_string()); //converts messages to strings and stores it
+                            }
+                            return history_strings;
+                        }
+                    }
+                    None => { //if file doesn't exist then no history
+                        return Vec::new();
+                    }
+                }
+                Vec::new() //fallback if something happens
             }
-            Some(chat_session) => {
+            Some(chat_session) => { //if found in cache
                 println!("get_history: {username} is in the cache! Nice!");
-                // TODO: The cache has this chat. What should you do?
-                // Your code goes here.
-                return Vec::new();
-
+                //gets new session from the cached chat
+                if let Ok(session) = chat_session.session() {
+                    let history = session.history(); //gets history 
+                    let mut history_strings = Vec::new();
+                    for message in history.iter(){
+                        history_strings.push(message.content().to_string());
+                    }
+                    return history_strings;
+                }
+                Vec::new() //fallback again in case something happens
             }
         }
     }

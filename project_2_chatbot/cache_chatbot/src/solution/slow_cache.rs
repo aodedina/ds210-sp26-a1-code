@@ -32,8 +32,13 @@ impl<V> Cache<V> {
 
     // Helper functions.
     fn remove_least_recently_used(&mut self) {
-        // TODO: your code goes here.
-        // println!("Removing least recently used");
+        if self.usage_history.is_empty() { //check for content in usage history
+            return;
+        }
+        //least recently user is stored in first index, so set equal to variable
+        let username_lru = self.usage_history.remove(0);
+        self.hashmap.remove(&username_lru); //removes the chat from the hashmap
+        println!("Removing least recently used user: {}", username_lru);
     }
     
     
