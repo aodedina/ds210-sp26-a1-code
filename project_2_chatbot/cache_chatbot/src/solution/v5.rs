@@ -26,10 +26,12 @@ impl ChatbotV5 {
             Some(chat) => {
                 println!("chat_with_user: {username} is in the cache! Nice!");
                 let response = chat(&message).await.unwrap(); //send user's message to chatbot; wait for response
-                let session = chat.session().unwrap();  //get current session from the chat
-                file_library::save_chat_session_to_file(&filename, &session);  //save updated chat session to file
 
-                response  //return chatbot response
+                if let Ok(session) = chat.session() {
+                    file_library::save_chat_session_to_file(filename, &session); //save updated chat session to file
+                }
+                  
+                return response  //return chatbot response
             }
 
             //conversation not found in cache
@@ -41,17 +43,20 @@ impl ChatbotV5 {
                     .with_system_prompt("The assistant will act like a pirate");  //create new chat session with assistant as pirate message prompt
 
                 //load previously saved session from file
-                if let Some(session) = file_library::load_chat_session_from_file(&filename) {
+                if let Some(session) = file_library::load_chat_session_from_file(filename) {
                     chat = chat.with_session(session);  //restore the past conversation
                 }
-
                 let response = chat(&message).await.unwrap();  
-                let session = chat.session().unwrap();
-                file_library::save_chat_session_to_file(&filename, &session);
 
-                self.cache.insert_chat(username.clone(), chat.clone());  //insert this chat into cache (now most recently used chat)
+                if let Ok(session) = chat.session() {
+                    file_library::save_chat_session_to_file(&filename, &session);
+                }
+                
+                //let session = chat.session().unwrap();
+            
+                self.cache.insert_chat(username.clone(), chat);  //insert this chat into cache (now most recently used chat)
 
-                response
+                return response;
             }
         }
     }
@@ -66,7 +71,6 @@ impl ChatbotV5 {
 
         match cached_chat {
             None => { //if not in cache will load from file
-                println!("get_history: {username} is not in the cache!");
                 //load chat from session file
                 match file_library::load_chat_session_from_file(filename) {
                     Some(session) => { //if file exists loads session
@@ -74,14 +78,12 @@ impl ChatbotV5 {
                             .chat()
                             .with_system_prompt("The assistant will act like a pirate")
                             .with_session(session);
-                        self.cache.insert_chat(username.clone(), chat); //adds onto cache
-                        //gets reference to the chat we just inserted
-                        let chat_reference = self.cache.get_chat(&username).unwrap();
+                        self.cache.insert_chat(username.clone(), chat.clone()); //adds onto cache
                         //takes out the session from the chat
-                        if let Ok(session) = chat_reference.session() { 
+                        if let Ok(session) = chat.session() { 
                             let history = session.history(); //gets past messages
                             let mut history_strings = Vec::new(); //new vector to store strings
-                            for message in history.iter() { //loops through each message
+                            for message in history.iter().skip(1) { //loops through each message
                                 history_strings.push(message.content().to_string()); //converts messages to strings and stores it
                             }
                             return history_strings;
@@ -99,7 +101,7 @@ impl ChatbotV5 {
                 if let Ok(session) = chat_session.session() {
                     let history = session.history(); //gets history 
                     let mut history_strings = Vec::new();
-                    for message in history.iter(){
+                    for message in history.iter().skip(1) {
                         history_strings.push(message.content().to_string());
                     }
                     return history_strings;
