@@ -51,8 +51,6 @@ impl ChatbotV5 {
                 if let Ok(session) = chat.session() {
                     file_library::save_chat_session_to_file(&filename, &session);
                 }
-                
-                //let session = chat.session().unwrap();
             
                 self.cache.insert_chat(username.clone(), chat);  //insert this chat into cache (now most recently used chat)
 
