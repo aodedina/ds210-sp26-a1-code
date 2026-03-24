@@ -23,7 +23,13 @@ pub fn save_chat_session_to_file(filename: &str, session: &LlamaChatSession) {
 
 // Implement this
 pub fn load_chat_session_from_file(filename: &str) -> Option<LlamaChatSession> {
-    let bytes = fs::read(filename).ok()?;
+    let bytes = match fs::read(filename) {
+        Ok(data) => data, 
+        Err(_) => return None,  //file does not exist or unable to be read
+    };
     
-    LlamaChatSession::from_bytes(&bytes).ok()
+    match LlamaChatSession::from_bytes(&bytes) {
+        Ok(session) => Some(session),
+        Err(_) => None, //failed to convert bytes into session
+    }
 }
