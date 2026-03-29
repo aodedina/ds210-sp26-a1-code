@@ -41,7 +41,7 @@ impl Row {
 
 pub struct Dataset {
     columns: Vec<(String, ColumnType)>,
-    rows: Vec<Row>,
+    pub(crate) rows: Vec<Row>,
 }
 impl Dataset {
     pub fn new(columns: Vec<(String, ColumnType)>) -> Dataset {

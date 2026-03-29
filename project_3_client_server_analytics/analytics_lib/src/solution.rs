@@ -36,7 +36,27 @@ pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
 
 
 pub fn group_by_dataset(dataset: Dataset, group_by_column: &String) -> HashMap<Value, Dataset> {
-    todo!("Implement this!");
+    let mut groups: HashMap<Value, Dataset> = HashMap::new();
+    //finds index of the column used for grouping
+    let column_index = dataset.column_index(group_by_column);
+    let columns = dataset.columns().clone();
+    //goes through each row
+    for row in dataset.rows {
+        let key = row.get_value(column_index).clone();
+        //checks if group already exists
+        if groups.contains_key(&key) {
+            let data_for_group = groups.get_mut(&key).unwrap(); //gets group and adds row
+            data_for_group.add_row(row);
+        } else {
+            //creates new group dataset for else group
+            let mut new_data = Dataset::new(columns.clone());
+            new_data.add_row(row);
+            //inserts into the hashmap
+            groups.insert(key, new_data);
+        }
+
+    }
+    return groups;
 }
 
 pub fn aggregate_dataset(dataset: HashMap<Value, Dataset>, aggregation: &Aggregation) -> HashMap<Value, Value> {
