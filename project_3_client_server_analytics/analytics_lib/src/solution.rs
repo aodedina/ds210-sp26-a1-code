@@ -41,7 +41,7 @@ pub fn group_by_dataset(dataset: Dataset, group_by_column: &String) -> HashMap<V
     let column_index = dataset.column_index(group_by_column);
     let columns = dataset.columns().clone();
     //goes through each row
-    for row in dataset.rows {
+    for row in dataset.into_iter() {
         let key = row.get_value(column_index).clone();
         //checks if group already exists
         if groups.contains_key(&key) {
