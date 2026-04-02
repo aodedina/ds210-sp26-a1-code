@@ -1,14 +1,40 @@
 extern crate tarpc;
-
+use analytics_lib::query::{Query, Condition, Aggregation};
+use analytics_lib::dataset::Value;
 use std::time::Instant;
 use std::io::BufRead;
 
-use analytics_lib::query::Query;
 use client::{start_client, solution};
 
 // Your solution goes here.
 fn parse_query_from_string(input: String) -> Query {
-    todo!("Implement this");
+    let parts: Vec<&str> = input.split_whitespace().collect();
+
+    // fliter A1 section, gorup by grade and count name 
+    let filter_column = parts[1].to_string();
+
+    let filter_value = parts[3]
+        .trim_matches('"')
+        .to_string();
+
+    let group_by = parts[6].to_string();
+
+    let aggregation_type = parts[7];
+    let aggregation_column = parts[8].to_string();
+
+    let filter = Condition::Equal(
+        filter_column,
+        Value::String(filter_value),
+    );
+
+    let aggregation = match aggregation_type {
+        "COUNT" => Aggregation::Count(aggregation_column),
+        "SUM" => Aggregation::Sum(aggregation_column),
+        "AVERAGE" => Aggregation::Average(aggregation_column),
+        _ => panic!("Invalid aggregation"),
+    };
+
+    Query::new(filter, group_by, aggregation)
 }
 
 // Each defined rpc generates an async fn that serves the RPC
