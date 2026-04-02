@@ -9,15 +9,12 @@ pub async fn run_hello(rpc_client: &RPCInterfaceClient) {
 
 pub async fn run_slow_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Dataset {
     println!("using slow_rpc");
-    
+
+    //calls server and gets dataset and computes the query locally on the client
     let dataset = rpc_client.slow_rpc(Context::current()).await.unwrap();
 
     let result = compute_query_on_dataset(&dataset, &query);
-
-    result
-
-    // What should you do to the dataset?
-    // Hint: you have not used `query`, maybe you need to use it somehow?
+    return result;
 }
 
 pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Dataset {

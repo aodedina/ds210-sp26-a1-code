@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize}; //added to fix trait problems
 use crate::dataset::Value;
 
 #[derive(Serialize, Deserialize, Clone, Debug)] //added to fix trait problems
+
 pub enum Condition {
     Equal(String, Value),
     Not(Box<Condition>),
@@ -9,7 +10,9 @@ pub enum Condition {
     Or(Box<Condition>, Box<Condition>),
 }
 
+
 #[derive(Serialize, Deserialize, Clone, Debug)] //added to fix trait problems
+
 pub enum Aggregation {
     Count(String),
     Sum(String),
@@ -24,6 +27,7 @@ impl Aggregation {
         }
     }
 }
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)] //fixing trait problems 
 pub struct Query {
