@@ -8,27 +8,75 @@ use client::{start_client, solution};
 
 // Your solution goes here.
 fn parse_query_from_string(input: String) -> Query {
+    //split into main sections
+    let filter_start = input.find("FILTER").unwrap();
+    let group_by_start = input.find("GROUP BY").unwrap();
+
+    let filter_str = input[filter_start + "FILTER ".len()..group_by_start].trim();
+    
     //splits input string into parts using whitespace
     let parts: Vec<&str> = input.split_whitespace().collect();
-
+    
     // fliter A1 section, gorup by grade and count name 
-    let filter_column = parts[1].to_string();
-
-    //trims quotes from string and filter
-    let filter_value = parts[3]
-        .trim_matches('"')
+    let filter_column = parts[0]
+        .trim_matches('(')
+        .trim_matches(')')
         .to_string();
 
-    //column group by
-    let group_by = parts[6].to_string();
-    //type of aggregation like count or sum and then column aggregation
-    let aggregation_type = parts[7];
-    let aggregation_column = parts[8].to_string();
+    //trims quotes from string and filter
+    let filter_value = parts[2]
+        .trim_matches('"')
+        .trim_matches(')')
+        .to_string();
+    
 
-    let filter = Condition::Equal(
+    // column group by
+    let group_by = parts[parts.len() - 3].to_string();
+
+    // aggregation
+    let aggregation_type = parts[parts.len() - 2];
+    let aggregation_column = parts[parts.len() - 1].to_string();
+
+    let filter = if filter_str.starts_with('(') {
+    // remove parentheses
+    let inner = &filter_str[1..filter_str.len() - 1];
+
+    // split on OR
+    let or_parts: Vec<&str> = inner.split("OR").map(|s| s.trim()).collect();
+
+    let mut conditions = Vec::new();
+
+    for part in or_parts {
+        let parts: Vec<&str> = part.split_whitespace().collect();
+
+        let filter_column = parts[0].to_string();
+        let filter_value = parts[2].trim_matches('"').to_string();
+
+        conditions.push(Condition::Equal(
+            filter_column,
+            Value::String(filter_value),
+        ));
+    }
+
+    // combine into OR chain
+    let mut cond = conditions[0].clone();
+    for c in conditions.into_iter().skip(1) {
+        cond = Condition::Or(Box::new(cond), Box::new(c));
+    }
+
+    cond
+} else {
+    // simple case (your original logic)
+    let parts: Vec<&str> = filter_str.split_whitespace().collect();
+
+    let filter_column = parts[0].to_string();
+    let filter_value = parts[2].trim_matches('"').to_string();
+
+    Condition::Equal(
         filter_column,
         Value::String(filter_value),
-    );
+    )
+};
     //determines aggregation type and creates aggregation object
     let aggregation = match aggregation_type {
         "COUNT" => Aggregation::Count(aggregation_column),
@@ -39,6 +87,8 @@ fn parse_query_from_string(input: String) -> Query {
     //returns query object using elements below
     Query::new(filter, group_by, aggregation)
 }
+
+
 
 // Each defined rpc generates an async fn that serves the RPC
 #[tokio::main]
