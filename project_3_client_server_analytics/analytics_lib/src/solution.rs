@@ -147,12 +147,6 @@ pub fn compute_query_on_dataset(dataset: &Dataset, query: &Query) -> Dataset {
 
     // Create result dataset object and fill it with the results.
     let mut result = Dataset::new(columns);
-    
-    // Convert HashMap into a vector and sort it to ensure deterministic order
-    let mut aggregated: Vec<_> = aggregated.into_iter().collect();
-
-    // Sort by group key (cloned so we don't move out of borrowed content)
-    aggregated.sort_by_key(|(k, _)| k.clone());
 
     for (grouped_value, aggregation_value) in aggregated {
         result.add_row(Row::new(vec![grouped_value, aggregation_value]));
