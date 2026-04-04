@@ -3,31 +3,35 @@ use crate::dataset::{ColumnType, Dataset, Value, Row};
 use crate::query::{Aggregation, Condition, Query};
 
 
-//Returns a new Dataset containing only rows that satisfy the given condition   
+//Returns a new Dataset containing only rows that satisfy the given condition
+//Uses a HashMap to map column names to indices, allowing for O(1) column lookup
+//instead of repeated O(n) iterations; makes for faster runtime
 pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
+    use std::collections::HashMap;
+
+    // Precompute column indices
+    let mut col_index_map: HashMap<String, usize> = HashMap::new();
+    for (i, (name, _)) in dataset.columns().iter().enumerate() {
+        col_index_map.insert(name.clone(), i);
+    }
     //Checks if a single row meets the given condition (Equal, Not, And, Or)
-    fn row_satisfies_condition(row: &Row, condition: &Condition, dataset: &Dataset) -> bool {
+    fn row_satisfies_condition(row: &Row, condition: &Condition, col_index_map: &HashMap<String, usize>) -> bool {
         match condition {
             Condition::Equal(col_name, value) => {
-                let col_index = dataset.columns()
-                .iter()
-                .position(|(name, _)| name == col_name)
-                .unwrap();
-
-                let row_value = &row.get_value(col_index);
-
-                row_value == &value  //Checks if a column equals a specified value and keeps all columns
+                let col_index = *col_index_map.get(col_name).unwrap();
+                let row_value = row.get_value(col_index);
+                row_value == value
             } 
             Condition::Not(inner) => {
-                !row_satisfies_condition(row, inner, dataset)
+                !row_satisfies_condition(row, inner, col_index_map)
             }
             Condition::And(cond1, cond2) => {
-                row_satisfies_condition(row, cond1, dataset)
-                && row_satisfies_condition(row, cond2, dataset)
+                row_satisfies_condition(row, cond1, col_index_map)
+                && row_satisfies_condition(row, cond2, col_index_map)
             }
             Condition::Or(cond1, cond2) => {
-                row_satisfies_condition(row, cond1, dataset)
-                || row_satisfies_condition(row, cond2, dataset)  
+                row_satisfies_condition(row, cond1, col_index_map)
+                || row_satisfies_condition(row, cond2, col_index_map)  
             }
         }
     }
@@ -35,7 +39,7 @@ pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
     let mut new_dataset = Dataset::new(dataset.columns().clone());
 
     for row in dataset.iter() {
-        if row_satisfies_condition(row, filter, dataset) {
+        if row_satisfies_condition(row, filter, &col_index_map) {
             new_dataset.add_row(row.clone());
         }
     }
