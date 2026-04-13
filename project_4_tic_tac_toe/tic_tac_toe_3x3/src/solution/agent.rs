@@ -14,7 +14,6 @@ impl Agent for SolutionAgent {
     fn solve(board: &mut Board, player: Player, _time_limit: u64) -> (i32, usize, usize) {
         // If you want to make a recursive call to this solution, use
         // `SolutionAgent::solve(...)`
-        unimplemented!("Not yet implemented")
 
         //base case: game is over, return final score
         if board.game_over() {
