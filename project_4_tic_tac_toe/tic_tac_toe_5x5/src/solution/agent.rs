@@ -83,6 +83,16 @@ impl SolutionAgent {
     }
     //heuristic function used when depth limit is reached
     fn heuristic(board: &Board) -> i32 {
-        board.score()
+        let base = board.score();
+        //number of possible moves left on board
+        let mobility = board.moves().len() as i32;
+
+        //rewards having more available moves (more flexibility)
+        let mobility_bonus = mobility * 3;
+
+        //prioritizes winning advantages over mobility and small positional differences that don't win the game
+        let weighted_score = base * 15;
+        //combines board strength with flexibility into one final value
+        weighted_score + mobility_bonus
     }
 }
