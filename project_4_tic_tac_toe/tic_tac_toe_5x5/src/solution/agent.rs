@@ -11,7 +11,11 @@ impl Agent for SolutionAgent {
     // where <score> is your estimate for the score of the game
     // and <x>, <y> are the position of the move your solution will make.
     fn solve(board: &mut Board, player: Player, _time_limit: u64) -> (i32, usize, usize) {
-        let max_depth = 4; 
+        let max_depth = if board.moves().len() <= 9 {
+    7  
+    } else {
+    3
+    };
         SolutionAgent::minimax(board, player, 0, max_depth)
     }
 }
