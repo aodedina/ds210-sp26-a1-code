@@ -14,11 +14,12 @@ impl Agent for SolutionAgent {
         let max_depth = if board.moves().len() <= 9 {
     7  
     } else {
-    3
+    3 
     };
         SolutionAgent::minimax(board, player, 0, max_depth)
     }
 }
+
 //implement minimax helper functino for SolutionAgent
 impl SolutionAgent {
     fn minimax(
