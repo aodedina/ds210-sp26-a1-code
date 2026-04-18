@@ -60,7 +60,8 @@ impl SolutionAgent {
                 depth + 1,
                 max_depth,
             );
-            //undo board to prepare for next iteration
+
+            //undo the board to prepare for next iteration
             board.undo_move(m, player);
             //choose best move depending on player 
             match player {
