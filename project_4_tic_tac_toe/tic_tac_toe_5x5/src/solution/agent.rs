@@ -6,6 +6,7 @@ use tic_tac_toe_stencil::player::Player;
 pub struct SolutionAgent {}
 
 // Put your solution here.
+//improvements for tournament testing
 impl Agent for SolutionAgent {
     fn solve(board: &mut Board, player: Player, _time_limit: u64) -> (i32, usize, usize) {
         let moves_left = board.moves().len();
